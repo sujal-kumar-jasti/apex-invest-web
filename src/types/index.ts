@@ -76,7 +76,6 @@ export interface SyncResponse {
  * --- 3. CORE ASSET ENTITIES & LIVE DATA (StockLiveDto.kt & DAOs) ---
  */
 
-// Local Room DB equivalent for Portfolio
 export interface StockEntity {
   symbol: string;
   name?: string;
@@ -89,13 +88,11 @@ export interface StockEntity {
   sector?: string;
 }
 
-// Local Room DB equivalent for Watchlist
 export interface WatchlistEntity {
   symbol: string;
   lastPrice: number;
 }
 
-// Local Room DB equivalent for Transactions
 export interface TransactionEntity {
   id?: string | number;
   symbol: string;
@@ -121,29 +118,26 @@ export interface StockLiveDto {
   candles: CandlePoint[];
 }
 
-// UPDATED: SearchResultDto matched to Kotlin SearchResultDto
 export interface StockSearchResult {
-  symbol: string; // Non-nullable as per Kotlin strictness
+  symbol: string; 
   name: string | null;
   exchange: string | null;
   type: string | null;
-  exch?: string; // Keeping your original field as optional
+  exch?: string; 
 }
 
 /**
  * --- 4. EXPLORE & TRENDING DTOs (TrendingStockDto.kt / CommodityDto.kt) ---
  */
 
-// UPDATED: TrendingStockDto matched to Kotlin TrendingStockDto
 export interface TrendingStockDto {
   symbol: string;
   name: string | null;
   price: number | null;
-  changePercent: number | null; // Mapped from @SerializedName("changePercent")
+  changePercent: number | null; 
   currency: string | null;
 }
 
-// UPDATED: CommodityDto matched to Kotlin CommodityDto
 export interface CommodityDto {
   symbol: string;
   name: string | null;
@@ -151,14 +145,24 @@ export interface CommodityDto {
   currency: string | null;
   price: number | null;
   changePercent: number | null;
-  isPositive?: boolean; // UI helper field preserved
+  isPositive?: boolean; 
+}
+
+/**
+ * 🌟 NEW: UI Model for processed display
+ */
+export interface CommodityUiModel {
+    symbol: string;
+    name: string;
+    value: string;
+    isPositive: boolean;
+    changePercent: string;
 }
 
 /**
  * --- 5. MARKET DATA & MASTER UI MODEL (StockInfoDto.kt) ---
  */
 
-// MASTER UI MODEL: Merged by Repository.getFullStockDetailsStream
 export interface StockDetailsResponse {
   symbol: string;
   name: string;
@@ -245,13 +249,12 @@ export interface StockInfoDto {
   optionsExpirations: string[] | null;
 }
 
-// UPDATED: StockNews matched to Kotlin StockNews
 export interface StockNews {
   title: string | null;
   publisher: string | null;
   link: string | null;
-  published: string | null; // Renamed to match Kotlin 'published'
-  date?: string; // Keeping your original field as optional
+  published: string | null; 
+  date?: string; 
   sentiment_label?: string;
   score?: number;
 }
