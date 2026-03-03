@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
+import Script from 'next/script';
 import { apexApi } from '@/lib/api';
 import { useStore } from '@/store/useStore';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -9,15 +10,16 @@ import {
   Lock, Mail, ArrowRight, AlertCircle, KeyRound, 
   ChevronLeft, TrendingUp, Loader2
 } from 'lucide-react';
-import { ResetPasswordRequest } from '@/types';
 
 type Step = 'LOGIN' | 'SIGNUP' | 'FORGOT_PASSWORD' | 'VERIFY_REG' | 'VERIFY_RESET';
+
+// Replace with your actual Client ID
+const GOOGLE_CLIENT_ID = "253879412042-crao03h41spiqqgjor228m36nnlsqjno.apps.googleusercontent.com";
 
 export default function AuthPage() {
   const router = useRouter();
   const { setToken, token } = useStore();
 
-  // --- HYDRATION GUARD (The Fix for Render Loading Issue) ---
   const [hasMounted, setHasMounted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -31,17 +33,80 @@ export default function AuthPage() {
   const [timer, setTimer] = useState(60);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
 
-  // 1. Set mounted to true once browser is ready
   useEffect(() => {
     setHasMounted(true);
   }, []);
 
-  // 2. Redirect ONLY after mounting and if token exists
+  // Falback redirect: If token exists on mount/update, go to dashboard
   useEffect(() => {
     if (hasMounted && token) {
       router.replace('/dashboard'); 
     }
   }, [hasMounted, token, router]);
+
+  // --- GOOGLE AUTH CALLBACK ---
+  const handleGoogleCallback = async (response: any) => {
+    try {
+      setLoading(true);
+      setError('');
+      
+      const idToken = response.credential;
+      
+      // Backend Call
+      const res = await apexApi.googleLogin({ idToken: idToken });
+
+      if (res.data.token) {
+        // 1. Save Token
+        setToken(res.data.token, res.data.email || "google_user");
+        
+        // 2. 🌟 FORCE REDIRECT TO DASHBOARD IMMEDIATELY
+        router.push('/dashboard'); 
+      }
+    } catch (err: any) {
+      console.error("Google Login Error:", err);
+      setError("Google Sign-In Failed: " + (err.response?.data?.message || err.message));
+      setLoading(false);
+    }
+  };
+
+  // --- RENDER GOOGLE BUTTON ---
+  useEffect(() => {
+    const renderTimeout = setTimeout(() => {
+      if (
+        typeof window !== 'undefined' && 
+        (window as any).google && 
+        (currentStep === 'LOGIN' || currentStep === 'SIGNUP')
+      ) {
+        try {
+          const googleBtnContainer = document.getElementById("googleIconBtn");
+          
+          if (googleBtnContainer) {
+            googleBtnContainer.innerHTML = ''; // Clear duplicates
+
+            (window as any).google.accounts.id.initialize({
+              client_id: GOOGLE_CLIENT_ID,
+              callback: handleGoogleCallback,
+            });
+
+            (window as any).google.accounts.id.renderButton(
+              googleBtnContainer,
+              { 
+                theme: "outline",    
+                size: "large",       
+                width: "100%",       
+                text: currentStep === 'LOGIN' ? "signin_with" : "signup_with",
+                shape: "pill"        
+              }
+            );
+          }
+        } catch (e) {
+          console.error("Google Button Render Error", e);
+        }
+      }
+    }, 250); 
+
+    return () => clearTimeout(renderTimeout);
+  }, [hasMounted, currentStep]);
 
   // --- CORE AUTH LOGIC ---
   const handleAction = async (e: React.FormEvent) => {
@@ -55,7 +120,7 @@ export default function AuthPage() {
           const logRes = await apexApi.login({ email, password });
           if (logRes.data.token) {
             setToken(logRes.data.token, email);
-            // Router will trigger the useEffect above
+            router.push('/dashboard'); // Explicit redirect for standard login too
           }
           break;
 
@@ -73,6 +138,7 @@ export default function AuthPage() {
           const regRes = await apexApi.verifyOtp({ email, otp, password });
           if (regRes.data.token) {
             setToken(regRes.data.token, email);
+            router.push('/dashboard'); // Explicit redirect
           }
           break;
 
@@ -94,7 +160,6 @@ export default function AuthPage() {
     setCurrentStep(nextStep);
   };
 
-  // Timer logic
   useEffect(() => {
     let interval: NodeJS.Timeout;
     if (isTimerRunning && timer > 0) {
@@ -116,12 +181,18 @@ export default function AuthPage() {
     return score;
   }, [password, newPassword, currentStep]);
 
-  // --- RENDER GUARD ---
-  // If we haven't mounted or we are already logged in (redirecting), show nothing
   if (!hasMounted || token) return null;
 
   return (
     <div className="relative flex min-h-screen items-center justify-center bg-[#0f0f13] p-6 overflow-hidden">
+      
+      {/* Google Script */}
+      <Script 
+        src="https://accounts.google.com/gsi/client" 
+        strategy="afterInteractive"
+        onLoad={() => setCurrentStep(prev => prev)} 
+      />
+
       <div className="absolute top-[-10%] left-[-10%] w-[45%] h-[45%] bg-[#673AB7] opacity-10 blur-[130px]" />
       <div className="absolute bottom-[-10%] right-[-10%] w-[45%] h-[45%] bg-[#9E86FF] opacity-10 blur-[130px]" />
 
@@ -180,6 +251,18 @@ export default function AuthPage() {
                 {loading ? <Loader2 className="animate-spin" /> : <><span className="uppercase tracking-[3px] text-sm">{currentStep === 'LOGIN' ? 'Authorize' : 'Confirm'}</span><ArrowRight size={20} /></>}
               </button>
             </form>
+
+            {/* --- GOOGLE SIGN IN BUTTON CONTAINER --- */}
+            {(currentStep === 'LOGIN' || currentStep === 'SIGNUP') && (
+              <div className="mt-6 flex flex-col items-center gap-4">
+                 <div className="relative w-full flex items-center justify-center">
+                    <div className="absolute w-full h-[1px] bg-white/5"></div>
+                    <span className="relative bg-[#0f0f13] px-2 text-[10px] text-gray-500 uppercase tracking-widest font-bold">Or Continue With</span>
+                 </div>
+                 
+                 <div id="googleIconBtn" className="w-full flex justify-center h-[50px] min-h-[50px]"></div>
+              </div>
+            )}
 
             <div className="mt-10 text-center">
               <button onClick={() => { setError(''); setCurrentStep(currentStep === 'LOGIN' ? 'SIGNUP' : 'LOGIN'); }} className="text-[10px] font-black text-gray-500 uppercase tracking-[2px] hover:text-[#9E86FF] transition-all">

@@ -26,25 +26,24 @@ import {
   IdeaResponse,
   StockDetailsResponse,
   StockNews,
-  TrendingStockDto, // Preserved
-  CommodityDto,     // Preserved
-  CommodityUiModel  // Preserved
+  TrendingStockDto,
+  CommodityDto,
+  CommodityUiModel
 } from '../types';
 
 /**
  * --- 1. PROXY & BASE URL MAPPING ---
- * Corrected to use relative paths so they trigger next.config.ts rewrites.
  */
 const BASE_URLS = {
-  RENDER: "/api",            // Maps to apexinvest-api-5ql5.onrender.com
-  LIVE: "/api/live",        // Maps to sujal7337-stock-api.hf.space
-  PYTHON: "/api/python",    // jsujalkumar7899-stock-api.hf.space
-  GLOBAL: "/api/global",    // sujal7899-stocks-api.hf.space
-  AI: "/api/ai",            // swapna7899-prognosai-fastapi-backend-1.hf.space
-  ADVANCED: "/api/advanced", // sujal7337-stock-details.hf.space
-  PROGNOS: "/api/prognos",   // sujal7899-prognos-data-engine.hf.space
-  IDEAS: "/api/ideas",      // sujal8310-apex-invest-ideas-generator.hf.space
-  CURRENCY: "https://api.exchangerate-api.com/v4/latest/" // 🌟 Live Currency API
+  RENDER: "/api",            
+  LIVE: "/api/live",        
+  PYTHON: "/api/python",    
+  GLOBAL: "/api/global",    
+  AI: "/api/ai",            
+  ADVANCED: "/api/advanced", 
+  PROGNOS: "/api/prognos",   
+  IDEAS: "/api/ideas",      
+  CURRENCY: "https://api.exchangerate-api.com/v4/latest/"
 };
 
 /**
@@ -58,7 +57,6 @@ const createAuthClient = (baseUrl: string): AxiosInstance => {
     timeout: 30000 
   });
 
-  // JWT Interceptor for Cloud Sync
   instance.interceptors.request.use((config) => {
     if (typeof window !== 'undefined') {
       const token = localStorage.getItem('apex_token');
@@ -72,14 +70,12 @@ const createAuthClient = (baseUrl: string): AxiosInstance => {
   return instance;
 };
 
-// Heavy Duty Client (10-minute timeout for Monte Carlo)
 const heavyClient = axios.create({
   baseURL: BASE_URLS.AI,
   headers: { 'Content-Type': 'application/json' },
   timeout: 600000 
 });
 
-// Standard Shared Client Helper
 const sharedClient = (baseUrl: string) => axios.create({
   baseURL: baseUrl,
   timeout: 30000
@@ -106,17 +102,25 @@ export const apexApi = {
   login: (data: AuthRequest) => authApi.post<AuthResponse>('/auth/login', data),
   forgotPassword: (data: { email: string }) => authApi.post<AuthResponse>('/auth/forgot-password', data),
   resetPassword: (data: ResetPasswordRequest) => authApi.post<AuthResponse>('/auth/reset-password', data),
+  
+  // 🌟 GOOGLE AUTH ENDPOINT (Restored & Confirmed)
   googleLogin: (data: GoogleAuthRequest) => authApi.post<AuthResponse>('/auth/google', data),
 
-  // Protected Routes
+  /** @section Protected User Routes */
   sync: () => authApi.get<SyncResponse>('/user/sync'),
   changePassword: (data: ChangePasswordRequest) => authApi.post<AuthResponse>('/user/change-password', data),
+  
+  // Write Operations
   recordTrade: (trade: TransactionItem) => authApi.post<AuthResponse>('/user/trade', trade),
+  
   updateCloudWatchlist: (item: WatchlistItem) => authApi.post('/user/watchlist', item),
   deleteFromCloudWatchlist: (item: WatchlistItem) => authApi.post('/user/watchlist/remove', item),
+  
   deleteCloudPortfolioItem: (symbol: string) => authApi.delete(`/user/portfolio/${symbol}`),
+  
   clearCloudTransactions: () => authApi.delete('/user/transactions'),
   deleteCloudTransaction: (id: string) => authApi.delete(`/user/transactions/${id}`),
+  
   deleteUserAccount: () => authApi.delete('/user/account'),
 
   /** @section Market Data Routing */
@@ -124,7 +128,6 @@ export const apexApi = {
   getStockLive: (symbol: string, range = "1d") => 
     liveClient.get<StockLiveDto>(`stock/${symbol}/live`, { params: { range } }),
   
-  // 🌟 INDIAN vs GLOBAL INFO ROUTING
   getIndianStockInfo: (symbol: string) => pythonClient.get<StockInfoDto>(`stock/${symbol}/info`),
   getGlobalStockInfo: (symbol: string) => globalClient.get<StockInfoDto>(`stock/${symbol}/info`),
   
@@ -199,21 +202,17 @@ export class PortfolioRepository {
   private deepAnalysisCache = new Map<string, CacheEntry<any>>();
   private portfolioSummaryCache = new Map<string, CacheEntry<any>>();
   private marketPulseCache = new Map<string, CacheEntry<any>>(); 
-  private rateCache: CacheEntry<number> | null = null; // 🌟 FX Cache
+  private rateCache: CacheEntry<number> | null = null; 
 
   // Local Stores
   public localPortfolio: RepoStockEntity[] = [];
   public localWatchlist: RepoWatchlistEntity[] = [];
   public localTransactions: TransactionItem[] = [];
 
-  /**
-   * --- 🌟 RESILIENT CURRENCY ENGINE ---
-   * Fetches live conversion rates from the API with session caching.
-   * @param forceRefresh - If true, bypasses the 5-minute cache.
-   */
+  // --- FX ENGINE ---
   async getConversionRate(forceRefresh = false): Promise<number> {
     const now = Date.now();
-    const TTL = 300000; // 5 Minutes
+    const TTL = 300000; 
 
     if (!forceRefresh && this.rateCache && (now - this.rateCache.timestamp < TTL)) {
       return this.rateCache.data;
@@ -230,7 +229,7 @@ export class PortfolioRepository {
     }
   }
 
-  // --- MARKET DATA FETCHERS (SESSION CACHING) ---
+  // --- MARKET DATA FETCHERS ---
   async fetchMarketPulse(type: 'trending' | 'global' | 'commodities', forceRefresh = false) {
     const now = Date.now();
     const entry = this.marketPulseCache.get(type);
@@ -253,9 +252,7 @@ export class PortfolioRepository {
     }
   }
 
-  /**
-   * --- PROCESS COMMODITIES (Mirrors Kotlin logic) ---
-   */
+  // --- COMMODITIES LOGIC ---
   public async processCommodities(list: CommodityDto[], forceRate?: number): Promise<CommodityUiModel[]> {
     const rate = forceRate ?? await this.getConversionRate();
     
@@ -296,7 +293,7 @@ export class PortfolioRepository {
     return symbols[code] || "";
   }
 
-  // --- 1. CLOUD SYNC LOGIC ---
+  // --- CLOUD SYNC LOGIC ---
   async fullCloudSync() {
     try {
       if (typeof window === 'undefined' || !localStorage.getItem('apex_token')) return;
@@ -329,7 +326,7 @@ export class PortfolioRepository {
     }
   }
 
-  // --- 2. STOCK DETAILS & STREAMING FLOW ---
+  // --- STOCK SEARCH ---
   async searchStocks(query: string): Promise<StockSearchResult[]> {
     try {
       const res = await apexApi.search(query);
@@ -457,7 +454,8 @@ export class PortfolioRepository {
     }
   }
 
-  // --- 3. TRADE RECORDING & SYNC ---
+  // --- WRITE OPERATIONS (Corrected Types) ---
+
   async fetchAndUpdatePrice(symbol: string) {
     try {
       const res = await apexApi.getStockLive(symbol.toUpperCase(), "1d");
@@ -481,12 +479,67 @@ export class PortfolioRepository {
            quantity: qty,
            price,
            timestamp,
-           notes: `Trade recorded at ${new Date().toISOString()}`
+           notes: `Web Trade ${new Date().toISOString()}`
         });
         await this.fetchAndUpdatePrice(symbol);
+        await this.fullCloudSync(); 
+        return true;
      } catch (e) {
-        console.error("Trade Sync Failed", e);
+        console.error("Trade Failed", e);
+        return false;
      }
+  }
+
+  async deleteTransaction(transactionId: string): Promise<boolean> {
+    try {
+        await apexApi.deleteCloudTransaction(transactionId);
+        // Correctly handling ID filtering without type errors
+        this.localTransactions = this.localTransactions.filter((t: any) => t.id !== transactionId);
+        return true;
+    } catch (e) {
+        console.error("Failed to delete transaction", e);
+        return false;
+    }
+  }
+
+  async addToWatchlist(symbol: string): Promise<boolean> {
+    const s = symbol.toUpperCase();
+    if (this.localWatchlist.some(w => w.symbol === s)) return true; 
+
+    try {
+        // Corrected: Removed 'price' property from API call
+        await apexApi.updateCloudWatchlist({ symbol: s });
+        this.localWatchlist.push({ symbol: s, lastPrice: 0 });
+        this.fetchAndUpdatePrice(s);
+        return true;
+    } catch (e) {
+        console.error("Add Watchlist Failed", e);
+        return false;
+    }
+  }
+
+  async removeFromWatchlist(symbol: string): Promise<boolean> {
+    const s = symbol.toUpperCase();
+    try {
+        // Corrected: Removed 'price' property from API call
+        await apexApi.deleteFromCloudWatchlist({ symbol: s });
+        this.localWatchlist = this.localWatchlist.filter(w => w.symbol !== s);
+        return true;
+    } catch (e) {
+        console.error("Remove Watchlist Failed", e);
+        return false;
+    }
+  }
+
+  async deleteAccount(): Promise<boolean> {
+      try {
+          await apexApi.deleteUserAccount();
+          this.clearAllLocalData();
+          return true;
+      } catch (e) {
+          console.error("Delete Account Failed", e);
+          return false;
+      }
   }
 
   async syncAllDataAndPrices() {
@@ -552,7 +605,7 @@ export class PortfolioRepository {
     this.rateCache = null;
   }
 
-  // Helper for components
+  // Helper
   public getCachedLive(symbol: string): StockLiveDto | null {
     const symbolClean = symbol.toUpperCase().trim();
     const entry = this.liveCache.get(`${symbolClean}_1D`);
@@ -560,5 +613,5 @@ export class PortfolioRepository {
   }
 }
 
-// Export singleton instance for React components to consume
+// Export singleton instance
 export const portfolioRepo = new PortfolioRepository();
