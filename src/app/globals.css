@@ -1,54 +1,63 @@
 @import "tailwindcss";
 
 /* 1. CORE THEME VARIABLES */
-/* Matches your Android SurfaceDark and GeminiPurple accents */
 :root {
+  /* Default: Dark Mode (Institutional Deep Space) */
   --background: #0f0f13;
   --foreground: #f0f0f0;
-  --primary: #673ab7;    /* Gemini Purple from AnalyticsScreen.kt */
+  --card-bg: rgba(255, 255, 255, 0.03);
+  --primary: #673ab7;    
   --accent: #9e86ff;
-  --success: #00e676;    /* ProGreen from AnalyticsScreen.kt */
-  --danger: #ff5252;     /* ProRed from AnalyticsScreen.kt */
+  --success: #00e676;    
+  --danger: #ff5252;     
+  --border: rgba(255, 255, 255, 0.1);
+}
+
+/* 🌟 LIGHT MODE OVERRIDES */
+.light {
+  --background: #f7f7f9;
+  --foreground: #1a1a1a;
+  --card-bg: rgba(0, 0, 0, 0.03);
+  --primary: #673ab7;    /* Primary stays consistent for branding */
+  --accent: #5e35b1;
+  --border: rgba(0, 0, 0, 0.1);
 }
 
 /* 2. BASE STYLING */
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
 }
 
 /* 3. TAILWIND v4 UTILITIES */
-/* These implement the premium UI logic found in your Android ViewModels and Screens */
-
 @utility glass {
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--card-bg);
   backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border);
 }
 
 @utility glass-card {
-  background: linear-gradient(
+  background: var(--background);
+  background-image: linear-gradient(
     180deg, 
-    rgba(30, 30, 30, 0.7) 0%, 
-    rgba(10, 10, 10, 0.9) 100%
+    var(--card-bg) 0%, 
+    transparent 100%
   );
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+  border: 1px solid var(--border);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
 }
 
 @utility glass-pill {
-  background: rgba(103, 58, 183, 0.15); /* Matches pillColor in MainPagerScreen.kt */
-  border: 1px solid rgba(158, 134, 255, 0.2);
+  background: rgba(103, 58, 183, 0.1);
+  border: 1px solid var(--primary);
   @apply rounded-full px-4 py-1;
 }
 
 /* 4. CUSTOM SCROLLBAR */
-/* Matches the clean, institutional look of your DashboardScreen.kt */
 ::-webkit-scrollbar {
   width: 6px;
 }
@@ -56,7 +65,7 @@ body {
   background: var(--background);
 }
 ::-webkit-scrollbar-thumb {
-  background: #2c2c35;
+  background: var(--border);
   border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb:hover {

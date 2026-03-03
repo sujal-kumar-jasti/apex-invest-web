@@ -129,12 +129,12 @@ export default function AuthPage() {
       <div className="absolute top-[-10%] left-[-10%] w-[45%] h-[45%] bg-[#673AB7] opacity-10 blur-[130px]" />
       <div className="absolute bottom-[-10%] right-[-10%] w-[45%] h-[45%] bg-[#9E86FF] opacity-10 blur-[130px]" />
 
-      <div className="w-full max-w-[420px] z-10">
+      <div className="w-full max-w-105 z-10">
         <div className="flex flex-col items-center mb-8 text-center">
             <motion.div 
               initial={{ rotate: -10 }} 
               animate={{ rotate: 0 }}
-              className="w-16 h-16 rounded-[24px] bg-gradient-to-br from-[#673AB7] to-[#9E86FF] flex items-center justify-center shadow-xl shadow-[#673AB7]/30 mb-4"
+              className="w-16 h-16 rounded-3xl bg-linear-to-br from-[#673AB7] to-[#9E86FF] flex items-center justify-center shadow-xl shadow-[#673AB7]/30 mb-4"
             >
                 <TrendingUp size={32} className="text-white" />
             </motion.div>

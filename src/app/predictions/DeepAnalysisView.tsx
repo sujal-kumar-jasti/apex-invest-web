@@ -196,7 +196,7 @@ export default function DeepAnalysisView({ data, onClose }: { data: DeepAnalysis
         </section>
 
         {/* 3. MONTE CARLO PREDICTION CHART */}
-        <section className="glass rounded-[32px] p-6 border border-white/5">
+        <section className="glass rounded-4xl p-6 border border-white/5">
           <div className="flex justify-between items-center mb-2">
             <h3 className="text-sm font-black uppercase tracking-widest">Price Trajectory</h3>
             <span className="text-[10px] font-bold text-gray-500 bg-white/5 px-2 py-1 rounded-lg">Monte Carlo Sim</span>
@@ -218,7 +218,7 @@ export default function DeepAnalysisView({ data, onClose }: { data: DeepAnalysis
 
         {/* 4. AGENT THESIS (Fundamental & Macro) */}
         <section className="space-y-4">
-          <div className="glass rounded-[24px] p-6 border border-white/5">
+          <div className="glass rounded-3xl p-6 border border-white/5">
             <div className="flex items-center gap-2 mb-3">
               <FileText size={16} className="text-[#673AB7]" />
               <h3 className="text-xs font-black uppercase tracking-widest text-[#673AB7]">Fundamental Thesis</h3>
@@ -228,7 +228,7 @@ export default function DeepAnalysisView({ data, onClose }: { data: DeepAnalysis
             </p>
           </div>
 
-          <div className="glass rounded-[24px] p-6 border border-white/5">
+          <div className="glass rounded-3xl p-6 border border-white/5">
             <div className="flex items-center gap-2 mb-3">
               <Globe size={16} className="text-blue-400" />
               <h3 className="text-xs font-black uppercase tracking-widest text-blue-400">Macro Context</h3>
@@ -273,7 +273,7 @@ export default function DeepAnalysisView({ data, onClose }: { data: DeepAnalysis
 // --- SUB-COMPONENTS ---
 
 const MetricCard = ({ label, value }: { label: string, value: string }) => (
-  <div className="glass rounded-[20px] p-4 border border-white/5 text-center bg-white/[0.02]">
+  <div className="glass rounded-[20px] p-4 border border-white/5 text-center bg-white/2">
     <p className="text-[9px] font-bold text-gray-500 uppercase mb-1">{label}</p>
     <p className="text-sm font-black text-white">{value}</p>
   </div>
@@ -285,7 +285,7 @@ const NewsCard = ({ item }: { item: NewsItem }) => {
   
   return (
     <a href={item.link} target="_blank" rel="noopener noreferrer" className="block">
-      <div className="glass rounded-[24px] p-5 border border-white/5 active:scale-[0.98] transition-transform hover:bg-white/[0.05]">
+      <div className="glass rounded-3xl p-5 border border-white/5 active:scale-[0.98] transition-transform hover:bg-white/5">
         <div className="flex justify-between items-start mb-2">
           <span className="text-[9px] font-black uppercase tracking-wider text-gray-500">{item.publisher}</span>
           <div className="flex items-center gap-1.5">

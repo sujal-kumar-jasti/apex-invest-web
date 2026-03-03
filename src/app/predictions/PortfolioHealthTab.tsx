@@ -166,7 +166,7 @@ function SentimentGaugeCard({ score, mood }: { score: number, mood: string }) {
 
 function ProStatCard({ label, value, icon, color }: any) {
     return (
-        <div className="rounded-[24px] p-5 border flex flex-col gap-3 transition-all" 
+        <div className="rounded-3xl p-5 border flex flex-col gap-3 transition-all" 
              style={{ backgroundColor: `${color}0D`, borderColor: `${color}1A` }}>
             <div style={{ color }}>{icon}</div>
             <div>
@@ -185,10 +185,10 @@ function ProStockAiCard({ stock, onClick }: { stock: DeepAnalysisResponse, onCli
         <motion.div 
             whileTap={{ scale: 0.97 }}
             onClick={onClick}
-            className="glass rounded-[24px] p-4 flex items-center justify-between border border-white/5 hover:bg-white/[0.05] transition-all cursor-pointer group"
+            className="glass rounded-3xl p-4 flex items-center justify-between border border-white/5 hover:bg-white/5 transition-all cursor-pointer group"
         >
             <div className="flex items-center gap-4">
-                <div className="h-12 w-12 rounded-[16px] flex items-center justify-center font-black transition-all group-hover:scale-110"
+                <div className="h-12 w-12 rounded-2xl flex items-center justify-center font-black transition-all group-hover:scale-110"
                      style={{ backgroundColor: `${color}1A`, color }}>
                     {stock.symbol[0]}
                 </div>

@@ -4,7 +4,6 @@ import React, { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useStore } from '@/store/useStore';
 import { apexApi } from '@/lib/api';
-import { motion } from 'framer-motion';
 import { 
   ArrowLeft, PieChart, TrendingUp, TrendingDown, 
   Shield, Zap, CheckCircle, AlertTriangle, Activity
@@ -210,14 +209,14 @@ export default function AnalyticsScreen() {
 }
 
 const MoverCard = ({ title, data, isUsd }: any) => {
-  if (!data) return <div className="flex-1 h-32 bg-white/5 rounded-[32px] animate-pulse" />;
+  if (!data) return <div className="flex-1 h-32 bg-white/5 rounded-4xl animate-pulse" />;
   
   const isPositive = data.change >= 0;
   const color = isPositive ? '#00e676' : '#ff5252';
   const Icon = isPositive ? TrendingUp : TrendingDown;
 
   return (
-    <div className="flex-1 bg-white/[0.02] p-6 rounded-[36px] border border-white/5 relative overflow-hidden group hover:bg-white/[0.05] transition-all">
+    <div className="flex-1 bg-white/2 p-6 rounded-[36px] border border-white/5 relative overflow-hidden group hover:bg-white/5 transition-all">
       <div className="relative z-10">
         <div className="flex items-center gap-2 mb-3">
           <Icon size={12} style={{ color }} />
@@ -231,7 +230,7 @@ const MoverCard = ({ title, data, isUsd }: any) => {
           {isUsd ? '$' : '₹'}{data.displayPrice.toLocaleString(undefined, { minimumFractionDigits: 2 })}
         </p>
       </div>
-      <div className="absolute -right-4 -bottom-4 w-20 h-20 opacity-5 blur-[40px]" style={{ backgroundColor: color }} />
+      <div className="absolute -right-4 -bottom-4 w-20 h-20 opacity-5 blur-2xl" style={{ backgroundColor: color }} />
     </div>
   );
 };

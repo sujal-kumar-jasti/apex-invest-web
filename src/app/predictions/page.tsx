@@ -74,7 +74,7 @@ export default function PredictionScreen() {
               
               <motion.div 
                 layoutId="tab-indicator"
-                className="absolute bottom-0 h-[3px] bg-[#673AB7] rounded-t-full shadow-[0_0_15px_#673AB7]"
+                className="absolute bottom-0 h-0.75 bg-[#673AB7] rounded-t-full shadow-[0_0_15px_#673AB7]"
                 initial={false}
                 animate={{ 
                   left: activeTab === 0 ? '0%' : '50%', 

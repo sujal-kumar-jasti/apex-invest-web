@@ -133,7 +133,7 @@ export default function MarketScoutTab({ onAnalyzeComplete }: { onAnalyzeComplet
             key={stock.symbol}
             initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
             onClick={() => executeScan(stock.symbol)}
-            className="glass p-5 rounded-[24px] flex items-center justify-between border border-white/5 hover:bg-white/10 cursor-pointer active:scale-[0.98] transition-all"
+            className="glass p-5 rounded-3xl flex items-center justify-between border border-white/5 hover:bg-white/10 cursor-pointer active:scale-[0.98] transition-all"
           >
             <div className="flex items-center gap-4">
               <div className="h-12 w-12 rounded-2xl bg-[#673AB7]/10 flex items-center justify-center font-black text-[#673AB7]">

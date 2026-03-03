@@ -184,7 +184,7 @@ export default function PortfolioScreen() {
 
       <section className="px-6 mt-6">
         <div className="bg-[#121216] rounded-[40px] p-8 border border-white/5 shadow-2xl overflow-hidden relative">
-          <Layers size={120} className="absolute -right-10 -bottom-10 text-white/[0.02] -rotate-12" />
+          <Layers size={120} className="absolute -right-10 -bottom-10 text-white/2 -rotate-12" />
           <span className="text-[10px] font-black text-gray-500 tracking-[3px] uppercase block mb-2">Net Worth</span>
           <div className="flex items-baseline gap-1 mb-6">
             <span className="text-2xl font-black text-gray-500">{isUsd ? '$' : '₹'}</span>
@@ -213,7 +213,7 @@ export default function PortfolioScreen() {
                 onPointerDown={() => startPress(stock.symbol)}
                 onPointerUp={endPress}
                 onClick={() => isBulkMode ? toggleSelect(stock.symbol) : router.push(`/stock/${stock.symbol}`)}
-                className={`p-5 rounded-[32px] border transition-all flex items-center justify-between cursor-pointer ${
+                className={`p-5 rounded-4xl border transition-all flex items-center justify-between cursor-pointer ${
                   isSelected ? 'bg-[#673ab7]/10 border-[#673ab7]' : 'bg-white/2 border-white/5 group'
                 }`}
               >

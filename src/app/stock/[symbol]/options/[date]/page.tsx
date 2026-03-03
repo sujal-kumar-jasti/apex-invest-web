@@ -113,7 +113,7 @@ function OptionsChainScreen({ symbol, expirationDate, calls = [], puts = [], onB
       </header>
 
       <main className="flex-1 p-4 pb-20 space-y-6 overflow-y-auto">
-        <section className="bg-[#16161a] border border-white/5 rounded-[32px] p-6 shadow-2xl">
+        <section className="bg-[#16161a] border border-white/5 rounded-4xl p-6 shadow-2xl">
           <div className="flex justify-between items-start mb-6">
             <div>
               <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1">Market Sentiment</p>
@@ -127,11 +127,11 @@ function OptionsChainScreen({ symbol, expirationDate, calls = [], puts = [], onB
 
           <div className="space-y-3">
             <div className="flex items-center gap-2"><Activity size={14} className="text-[#673ab7]" /><p className="text-[11px] font-black uppercase text-white/80 tracking-tighter">Activity Distribution (Vol / OI)</p></div>
-            <div className="h-[100px] flex items-end gap-[2px] px-1 overflow-hidden">
+            <div className="h-25 flex items-end gap-0.5 px-1 overflow-hidden">
               {analytics.strikeActivity.map((data, idx) => (
-                <div key={idx} className="flex-1 flex items-end gap-[1px] h-full group relative">
-                  <motion.div initial={{ height: 0 }} animate={{ height: `${(data.callVal / analytics.maxActivity) * 100}%` }} className="w-full bg-[#00c853]/80 rounded-t-[2px]" />
-                  <motion.div initial={{ height: 0 }} animate={{ height: `${(data.putVal / analytics.maxActivity) * 100}%` }} className="w-full bg-[#ff3d00]/80 rounded-t-[2px]" />
+                <div key={idx} className="flex-1 flex items-end gap-px h-full group relative">
+                  <motion.div initial={{ height: 0 }} animate={{ height: `${(data.callVal / analytics.maxActivity) * 100}%` }} className="w-full bg-[#00c853]/80 rounded-t-xs" />
+                  <motion.div initial={{ height: 0 }} animate={{ height: `${(data.putVal / analytics.maxActivity) * 100}%` }} className="w-full bg-[#ff3d00]/80 rounded-t-xs" />
                 </div>
               ))}
             </div>
@@ -158,7 +158,7 @@ function OptionsChainScreen({ symbol, expirationDate, calls = [], puts = [], onB
 function OptionRow({ contract, isCall }: any) {
   const themeColor = isCall ? '#00C853' : '#FF3D00';
   return (
-    <div className={`flex items-center px-4 py-4 ${contract.in_the_money ? 'bg-white/[0.03]' : ''}`}>
+    <div className={`flex items-center px-4 py-4 ${contract.in_the_money ? 'bg-white/3' : ''}`}>
       <div className="w-[30%] flex items-center gap-2">
         {contract.in_the_money && <div className="w-1 h-4 rounded-full" style={{ backgroundColor: themeColor }} />}
         <span className="text-base font-black tracking-tight">{contract.strike}</span>

@@ -176,7 +176,7 @@ export default function TransactionHistoryPage() {
               <SummaryCard title="Invested" value={analytics.totalBuy} color={COLORS.proGreen} symbol={currencySymbol} />
               <SummaryCard title="Liquidated" value={analytics.totalSell} color={COLORS.proRed} symbol={currencySymbol} />
             </div>
-            <div className="bg-[#121216] border border-white/5 rounded-[32px] p-6 mb-8 shadow-2xl text-center">
+            <div className="bg-[#121216] border border-white/5 rounded-4xl p-6 mb-8 shadow-2xl text-center">
                 <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1">Net Flow Balance</p>
                 <p className={`text-2xl font-black ${analytics.net >= 0 ? 'text-[#00e676]' : 'text-white'}`}>
                   {analytics.net >= 0 ? '+' : '-'}{currencySymbol}{Math.abs(analytics.net).toLocaleString(undefined, { minimumFractionDigits: 2 })}
@@ -212,7 +212,7 @@ export default function TransactionHistoryPage() {
 
       <AnimatePresence>
         {showConfirm && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/90 backdrop-blur-sm">
+          <div className="fixed inset-0 z-100 flex items-center justify-center p-6 bg-black/90 backdrop-blur-sm">
             <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-[#121216] border border-white/10 rounded-[40px] p-8 max-w-sm w-full text-center shadow-3xl">
               <div className="w-20 h-20 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
                  <Trash2 size={32} className="text-[#ff5252]" />
@@ -233,7 +233,7 @@ export default function TransactionHistoryPage() {
 
 function SummaryCard({ title, value, color, symbol }: any) {
   return (
-    <div className="bg-[#121216] border border-white/5 rounded-[32px] p-5 shadow-xl">
+    <div className="bg-[#121216] border border-white/5 rounded-4xl p-5 shadow-xl">
       <div className="flex items-center gap-2 mb-3">
         <div className={`w-1.5 h-1.5 rounded-full`} style={{ backgroundColor: color }} />
         <span className="text-[10px] font-black uppercase text-gray-500 tracking-widest">{title}</span>
@@ -254,8 +254,8 @@ function TransactionRow({ tx, symbol, convertedPrice, isSelected, isSelectionMod
     <motion.div 
       layout
       onClick={onToggle}
-      className={`group flex items-center p-5 rounded-[32px] border transition-all cursor-pointer ${
-        isSelected ? 'bg-[#673ab7]/10 border-[#673ab7]' : 'bg-white/[0.02] border-white/5 hover:bg-white/[0.04]'
+      className={`group flex items-center p-5 rounded-4xl border transition-all cursor-pointer ${
+        isSelected ? 'bg-[#673ab7]/10 border-[#673ab7]' : 'bg-white/2 border-white/5 hover:bg-white/4'
       }`}
     >
       <div className="flex items-center gap-4 flex-1 min-w-0">
