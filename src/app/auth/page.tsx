@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Script from 'next/script';
 import { apexApi } from '@/lib/api';
@@ -13,7 +13,6 @@ import {
 
 type Step = 'LOGIN' | 'SIGNUP' | 'FORGOT_PASSWORD' | 'VERIFY_REG' | 'VERIFY_RESET';
 
-// Replace with your actual Client ID
 const GOOGLE_CLIENT_ID = "253879412042-crao03h41spiqqgjor228m36nnlsqjno.apps.googleusercontent.com";
 
 export default function AuthPage() {
@@ -37,7 +36,6 @@ export default function AuthPage() {
     setHasMounted(true);
   }, []);
 
-  // Falback redirect: If token exists on mount/update, go to dashboard
   useEffect(() => {
     if (hasMounted && token) {
       router.replace('/dashboard'); 
@@ -45,68 +43,65 @@ export default function AuthPage() {
   }, [hasMounted, token, router]);
 
   // --- GOOGLE AUTH CALLBACK ---
-  const handleGoogleCallback = async (response: any) => {
+  const handleGoogleCallback = useCallback(async (response: any) => {
     try {
       setLoading(true);
       setError('');
-      
       const idToken = response.credential;
-      
-      // Backend Call
       const res = await apexApi.googleLogin({ idToken: idToken });
 
       if (res.data.token) {
-        // 1. Save Token
+        // Keeping your existing setToken signature as requested
         setToken(res.data.token, res.data.email || "google_user");
-        
-        // 2. 🌟 FORCE REDIRECT TO DASHBOARD IMMEDIATELY
         router.push('/dashboard'); 
       }
     } catch (err: any) {
-      console.error("Google Login Error:", err);
       setError("Google Sign-In Failed: " + (err.response?.data?.message || err.message));
       setLoading(false);
     }
-  };
+  }, [setToken, router]);
 
-  // --- RENDER GOOGLE BUTTON ---
-  useEffect(() => {
-    const renderTimeout = setTimeout(() => {
-      if (
-        typeof window !== 'undefined' && 
-        (window as any).google && 
-        (currentStep === 'LOGIN' || currentStep === 'SIGNUP')
-      ) {
-        try {
-          const googleBtnContainer = document.getElementById("googleIconBtn");
-          
-          if (googleBtnContainer) {
-            googleBtnContainer.innerHTML = ''; // Clear duplicates
+  // --- 🌟 INTERNAL RENDER LOGIC (Always showing the button) ---
+  const initGoogleButton = useCallback(() => {
+    if (typeof window === 'undefined' || !(window as any).google) return;
 
-            (window as any).google.accounts.id.initialize({
-              client_id: GOOGLE_CLIENT_ID,
-              callback: handleGoogleCallback,
-            });
+    const btnContainer = document.getElementById("googleIconBtn");
+    if (!btnContainer) return;
 
-            (window as any).google.accounts.id.renderButton(
-              googleBtnContainer,
-              { 
-                theme: "outline",    
-                size: "large",       
-                width: "100%",       
-                text: currentStep === 'LOGIN' ? "signin_with" : "signup_with",
-                shape: "pill"        
-              }
-            );
-          }
-        } catch (e) {
-          console.error("Google Button Render Error", e);
+    try {
+      // 1. Re-initialize to ensure state is fresh
+      (window as any).google.accounts.id.initialize({
+        client_id: GOOGLE_CLIENT_ID,
+        callback: handleGoogleCallback,
+      });
+
+      // 2. Wipe the container to prevent ghosting or duplicates
+      btnContainer.innerHTML = '';
+
+      // 3. Render the button
+      (window as any).google.accounts.id.renderButton(
+        btnContainer,
+        { 
+          theme: "outline",    
+          size: "large",       
+          width: "100%",       
+          text: currentStep === 'LOGIN' ? "signin_with" : "signup_with",
+          shape: "pill"        
         }
-      }
-    }, 250); 
+      );
+    } catch (e) {
+      console.error("Google Component Error", e);
+    }
+  }, [currentStep, handleGoogleCallback]);
 
-    return () => clearTimeout(renderTimeout);
-  }, [hasMounted, currentStep]);
+  // Triggered on script load AND every time the step changes
+  useEffect(() => {
+    if (hasMounted && (currentStep === 'LOGIN' || currentStep === 'SIGNUP')) {
+      // Small timeout allows AnimatePresence to mount the div into the DOM before we draw in it
+      const t = setTimeout(initGoogleButton, 150);
+      return () => clearTimeout(t);
+    }
+  }, [hasMounted, currentStep, initGoogleButton]);
 
   // --- CORE AUTH LOGIC ---
   const handleAction = async (e: React.FormEvent) => {
@@ -120,7 +115,7 @@ export default function AuthPage() {
           const logRes = await apexApi.login({ email, password });
           if (logRes.data.token) {
             setToken(logRes.data.token, email);
-            router.push('/dashboard'); // Explicit redirect for standard login too
+            router.push('/dashboard');
           }
           break;
 
@@ -138,7 +133,7 @@ export default function AuthPage() {
           const regRes = await apexApi.verifyOtp({ email, otp, password });
           if (regRes.data.token) {
             setToken(regRes.data.token, email);
-            router.push('/dashboard'); // Explicit redirect
+            router.push('/dashboard');
           }
           break;
 
@@ -186,11 +181,10 @@ export default function AuthPage() {
   return (
     <div className="relative flex min-h-screen items-center justify-center bg-[#0f0f13] p-6 overflow-hidden">
       
-      {/* Google Script */}
       <Script 
         src="https://accounts.google.com/gsi/client" 
         strategy="afterInteractive"
-        onLoad={() => setCurrentStep(prev => prev)} 
+        onLoad={initGoogleButton} 
       />
 
       <div className="absolute top-[-10%] left-[-10%] w-[45%] h-[45%] bg-[#673AB7] opacity-10 blur-[130px]" />
@@ -260,6 +254,7 @@ export default function AuthPage() {
                     <span className="relative bg-[#0f0f13] px-2 text-[10px] text-gray-500 uppercase tracking-widest font-bold">Or Continue With</span>
                  </div>
                  
+                 {/* ID is critical for the logic above */}
                  <div id="googleIconBtn" className="w-full flex justify-center h-[50px] min-h-[50px]"></div>
               </div>
             )}
